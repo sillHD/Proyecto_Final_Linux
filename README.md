@@ -1,194 +1,240 @@
-# 💡 Proyecto IoT con Lichee RV Dock  
-### Control inteligente de iluminación con interfaz HDMI y acceso móvil
+# 💡 Proyecto: Sistema Linux Embebido de Control de Iluminación Inteligente
+
+**Autores:** 
+**Curso:** Embedded Linux System Programming — 2025-2S  
+**Docente:** Juan Bernardo Gómez-Mendoza  
+**Plataforma:** Lichee RV Dock (RISC-V)  
+**Repositorio:** [GitHub - Proyecto_Iluminacion_Lichee](#)
 
 ---
 
-## 🧠 Contexto general
+## 🧭 Descripción general
 
-Este proyecto desarrolla un **sistema de control de iluminación inteligente** basado en la **Lichee RV Dock** (arquitectura RISC-V).  
-El sistema integra:
+Este proyecto consiste en el diseño e implementación de un **sistema embebido basado en Linux** ejecutándose sobre una **placa Lichee RV Dock**, que controla la **intensidad de una lámpara LED** en función de la **iluminación ambiental**.
 
-- **Control físico** de luces mediante **GPIO**.  
-- **Interfaz local HDMI** que muestra un **mapa 2D de la casa** con los estados de las luces.  
-- **Interfaz web móvil** desarrollada con **Flask**, accesible desde cualquier dispositivo en la red local.  
-- Capacidad de expansión hacia un ecosistema **IoT completo (MQTT, Node-RED, Home Assistant)**.
-
-El objetivo es lograr un sistema **autónomo, visual y accesible** para el control doméstico desde una plataforma embebida optimizada.
+El sistema ajusta el brillo automáticamente mediante un **daemon de control** que lee un sensor de luz (LDR o BH1750) a través de I²C o ADC, y modula la salida PWM del LED.  
+Además, incluye una **interfaz web local (Flask)** que permite al usuario visualizar el nivel de iluminación y cambiar el modo de operación (manual o automático).
 
 ---
 
-## ⚙️ 1️⃣ Hardware involucrado
+## 🧩 Cómo este proyecto constituye un Sistema Operativo Embebido
 
-| Componente | Descripción / Función |
-|:--|:--|
-| **Lichee RV Dock** | Placa principal RISC-V con salida HDMI y pines GPIO |
-| **Fuente de alimentación 5 V / 2 A** | Energía estable para la placa y periféricos |
-| **Relés 5 V** | Control de luces o cargas mediante GPIO |
-| **LEDs o bombillos de prueba** | Simulan luminarias del hogar |
-| **Pantalla HDMI (7″ o monitor)** | Visualización del mapa e interfaz local |
-| **WiFi o Ethernet** | Comunicación con dispositivos móviles |
-| **(Opcional) Sensores DHT11 / PIR / LDR** | Extensión futura para monitoreo ambiental o detección de presencia |
+Este proyecto no se limita a ejecutar un programa sobre Linux: se **construye un sistema operativo embebido funcional**, adaptado específicamente al control de iluminación.  
+Esto implica intervenir y configurar **los tres niveles fundamentales** de un sistema Linux embebido.
 
----
+### 🧱 1. Capa de Sistema Operativo Base
+Se parte de una distribución mínima de Linux (por ejemplo, **Buildroot** o **Debian Lite**) configurada para la arquitectura **RISC-V** de la Lichee RV Dock.  
+En esta capa se:
+- Compilan y personalizan los **módulos del kernel** necesarios (GPIO, PWM, I²C).  
+- Configura el **Device Tree** para habilitar los periféricos específicos del proyecto.  
+- Se integran herramientas básicas de usuario (`busybox`, `systemd`, `python3`).  
 
-## 🖥️ 2️⃣ Software base
-
-| Elemento | Uso |
-|:--|:--|
-| **Sistema operativo** | Debian RISC-V o Tina Linux, cargado con Raspberry Pi Imager |
-| **Python 3 + Flask** | Servidor web y control lógico |
-| **PyQt5 / PySide6** | Interfaz local en HDMI (mapa 2D) |
-| **Periphery o lgpio** | Manejo de pines GPIO desde Linux |
-| **Bootstrap + JavaScript** | Interfaz móvil/web responsiva |
-| **SQLite (opcional)** | Registro de estados e historial |
-| **MQTT (opcional)** | Integración futura con sistemas IoT externos |
+➡️ **Resultado:** un sistema operativo Linux reducido, optimizado y con soporte de hardware específico para el sistema de iluminación.
 
 ---
 
-## 🧩 3️⃣ Arquitectura del sistema
+### ⚙️ 2. Capa de Servicios del Sistema (System Services)
+Encima del kernel se desarrollan **servicios propios del sistema embebido**:
+- Un **daemon de control de iluminación** en Python/C, que lee sensores y regula la salida PWM.  
+- Un servicio **systemd** (`lightcontrol.service`) que permite el arranque automático, supervisión y reinicio del daemon.  
 
-       ┌────────────────────────────────────────────┐
-       │                 Lichee RV Dock              │
-       │────────────────────────────────────────────│
-       │ Flask Server (Python)                      │
-       │  ├── API REST / WebSocket / MQTT           │
-       │  ├── Control de GPIO (luces)               │
-       │  ├── Base de datos / logs                  │
-       │  └── Interfaz HDMI (PyQt o webview)        │
-       └─────────────┬──────────────────────────────┘
-                     │ WiFi local (HTTP o MQTT)
-     ┌───────────────┴────────────────┐
-     │                                │
-┌──────────────────┐ ┌─────────────────────┐
-│ Interfaz Web Móvil│ │ Relés / Luces GPIO │
-│ (HTML + JS + CSS) │ │ Control físico │
-└──────────────────┘ └─────────────────────┘
----
-
-## 💡 4️⃣ Funcionalidades principales
-
-✅ Control manual de luces desde:
-- Interfaz HDMI (PyQt)
-- Interfaz móvil/web (Flask + HTML)
-
-✅ Visualización del **mapa 2D** de la casa:
-- Zonas con luces encendidas o apagadas.
-- Colores dinámicos según estado GPIO.
-
-✅ Sincronización en tiempo real entre:
-- Interfaz local y web (vía Flask o WebSocket).
-
-✅ Registro básico de acciones:
-- Fecha, hora y evento (encendido/apagado).
-
-✅ Arquitectura extensible:
-- Sensores (temperatura, movimiento, luminosidad).
-- Control por voz o IoT (MQTT).
-- Integración con Node-RED o Home Assistant.
+➡️ **Resultado:** el sistema embebido posee sus **propios servicios gestionados** por el init system, igual que un sistema operativo completo.
 
 ---
 
-## 🧰 5️⃣ Estructura del proyecto
+### 💻 3. Capa de Aplicación y Usuario
+Finalmente, se implementa una **interfaz web embebida (Flask)** que permite interacción directa con el sistema:
+- Lectura de sensores mediante archivos virtuales en `/sys/class/pwm` y `/sys/bus/i2c/`.  
+- Comunicación con el daemon mediante sockets o API REST.  
+- Registro y depuración de eventos a través de `journalctl`.  
 
-/home/lichee/iot_home_project/
-│
-├── app.py → Servidor Flask principal
-├── gpio_control.py → Módulo de control GPIO
-├── templates/
-│ └── index.html → Interfaz web móvil
-├── static/
-│ ├── style.css → Estilos del panel web
-│ └── script.js → Lógica de botones AJAX
-├── gui_hdmi.py → Interfaz PyQt para pantalla local
-├── house_map.png → Imagen del plano de la casa
-├── data/
-│ └── log.db → Base de datos de eventos (opcional)
-└── requirements.txt → Dependencias Python
-
-## ⚡ 6️⃣ Flujo operativo
-
-1. La **Lichee RV Dock inicia** y lanza automáticamente el servidor Flask.  
-2. La **interfaz HDMI local (PyQt)** muestra el plano de la casa con las luces.  
-3. Desde un **celular o PC**, el usuario accede vía navegador:
-4. Al pulsar un botón:
-- Flask recibe la orden `/light/on` o `/light/off`.
-- Se activa/desactiva un GPIO (relé o LED).
-- Flask actualiza el estado global (y lo refleja en PyQt y en la web).
+➡️ **Resultado:** el usuario interactúa con el sistema como si fuera un **OS personalizado para control de iluminación**, con su propio demonio, interfaz y logging.
 
 ---
 
-## 🧪 7️⃣ Etapas de desarrollo (Checklist técnica)
+### 🧠 En resumen
+El sistema embebido integra los tres niveles clásicos de un sistema operativo Linux:
 
-| Etapa | Descripción | Estado |
-|:--|:--|:--:|
-| [ ] 1. Instalación del sistema operativo | Cargar Debian RISC-V en microSD usando Raspberry Pi Imager. | ☐ |
-| [ ] 2. Configuración del entorno Python | Instalar `python3`, `pip`, `flask`, `pyqt5`, `periphery`. | ☐ |
-| [ ] 3. Prueba de servidor Flask básico | Crear y ejecutar `app.py` mostrando “Hola Lichee”. | ☐ |
-| [ ] 4. Control GPIO local | Encender/apagar un LED desde Flask. | ☐ |
-| [ ] 5. Interfaz web responsiva | Crear panel HTML con botones de control y feedback. | ☐ |
-| [ ] 6. Interfaz HDMI local (PyQt) | Mostrar mapa 2D con luces dinámicas. | ☐ |
-| [ ] 7. Comunicación bidireccional | Sincronizar estados entre PyQt y Flask. | ☐ |
-| [ ] 8. Registro de eventos (SQLite) | Guardar acciones y horarios. | ☐ |
-| [ ] 9. Pruebas en red local | Acceso desde un celular por WiFi y control correcto. | ☐ |
-| [ ] 10. Documentación técnica | Manual de instalación, código y arquitectura. | ☐ |
-| [ ] 11. Extensión IoT (opcional) | MQTT / Node-RED / Home Assistant. | ☐ |
+| Nivel | Elemento desarrollado |
+|--------|-----------------------|
+| Kernel / Device Tree | Configuración de PWM, GPIO e I²C |
+| Servicios del sistema | Daemon + servicio systemd |
+| Aplicaciones de usuario | API REST / Interfaz web Flask |
+
+🔹 En conjunto, esto convierte a la Lichee RV Dock en un **sistema operativo embebido dedicado a la gestión inteligente de iluminación**, mostrando un dominio completo desde el kernel hasta la capa de usuario.
 
 ---
 
-## 🔒 8️⃣ Seguridad y mantenimiento
+## 🎯 Objetivos
 
-- Ejecutar Flask solo en red local (no expuesto a Internet).  
-- Añadir **token o login básico** en `/login` si se requiere acceso restringido.  
-- Usar **firewall (ufw)** o control de puertos.  
-- Reinicio automático del servicio con `systemd`.
+### Objetivo general
+Implementar un sistema Linux embebido capaz de controlar dinámicamente la intensidad lumínica en función de la luz ambiental, con supervisión y control remoto local a través de una interfaz web.
 
----
-
-## 🚀 9️⃣ Objetivos finales del proyecto
-
-- [ ] Mostrar el **estado de luces y sensores** en tiempo real.  
-- [ ] Permitir **control local y remoto** desde cualquier dispositivo.  
-- [ ] Integrar visualización por **HDMI (mapa 2D)**.  
-- [ ] Mantener **bajo consumo y estabilidad** en hardware RISC-V.  
-- [ ] Documentar el sistema para ampliaciones IoT futuras.
+### Objetivos específicos
+1. Personalizar un sistema Linux mínimo (Buildroot o Debian) con soporte GPIO, PWM e I²C.
+2. Implementar un **daemon de control de iluminación** en espacio de usuario.
+3. Desarrollar una **API REST / interfaz web (Flask)** para el monitoreo y control manual.
+4. Configurar **systemd** para iniciar automáticamente el servicio al arranque.
+5. Validar el sistema mediante **pruebas unitarias e integración hardware-in-the-loop**.
 
 ---
 
-## 🧩 🔜 10️⃣ Extensiones futuras
+## ⚙️ Requerimientos del sistema
 
-- [ ] Integrar sensores de temperatura y humedad (DHT11).  
-- [ ] Añadir detección de movimiento (PIR).  
-- [ ] Sincronizar con aplicaciones externas vía MQTT.  
-- [ ] Enviar notificaciones móviles o Telegram Bot.  
-- [ ] Implementar control de voz local.
+### 🔹 Funcionales
+| ID | Descripción | Tipo |
+|----|--------------|------|
+| RF1 | Leer el nivel de luz ambiental mediante un sensor (LDR o BH1750). | Sensado |
+| RF2 | Controlar la intensidad del LED usando PWM. | Actuación |
+| RF3 | Ofrecer una interfaz web local para control y monitoreo. | Interfaz |
+| RF4 | Ejecutar automáticamente el servicio al arrancar Linux. | Sistema |
+| RF5 | Registrar eventos y errores en `journalctl`. | Logging |
+
+### 🔹 No funcionales
+| ID | Descripción | Tipo |
+|----|--------------|------|
+| RNF1 | Tiempo máximo de respuesta a solicitudes REST: **<300 ms** | Desempeño |
+| RNF2 | Uso promedio de CPU < **30%** | Eficiencia |
+| RNF3 | Código compatible con arquitectura **RISC-V 64 bits** | Portabilidad |
+| RNF4 | Documentación en formato **Markdown + Diagrama de bloques Draw.io** | Mantenibilidad |
 
 ---
 
-## ✅ Conclusión
+## 🧩 Arquitectura del sistema
 
-Este proyecto demuestra cómo una **plataforma RISC-V embebida** como la **Lichee RV Dock** puede ejecutar un **sistema IoT funcional**, combinando:
+### 🧱 Hardware
 
-- **Interfaz gráfica local (HDMI)**  
-- **Control remoto web responsivo**  
-- **Manejo físico de hardware (GPIO)**  
-- **Arquitectura extensible hacia IoT completo**
+| Componente | Función | Interfaz |
+|-------------|----------|-----------|
+| **Lichee RV Dock** | Plataforma Linux embebida | — |
+| **Sensor BH1750 / LDR+ADC** | Medición de intensidad lumínica | I²C / ADC |
+| **LED + MOSFET driver** | Control de brillo por modulación PWM | GPIO / PWM |
+| **Fuente DC 5V** | Alimentación del sistema | — |
+
+### ⚙️ Software
+
++----------------------------------------------------------+
+| Interfaz Web Flask |
+| - API REST / Control manual |
+| - Monitoreo de brillo y luz ambiental |
++----------------------------------------------------------+
+| Daemon de Control de Luz |
+| - Lectura de sensor |
+| - Control PWM automático |
+| - Logging en systemd |
++----------------------------------------------------------+
+| Controladores Linux (GPIO, I2C, PWM) |
+| - Device Tree y Kernel Drivers |
++----------------------------------------------------------+
+| Sistema Operativo Linux Embebido |
+| - Buildroot / Debian Lite |
++----------------------------------------------------------+
+| Hardware Lichee RV Dock |
++----------------------------------------------------------+
+
 
 ---
 
-### 📁 Repositorio sugerido
+## 🔌 Diagrama de bloques (Hardware)
 
-📂 iot_lichee_project
-┣ 📂 templates
-┣ 📂 static
-┣ 📂 data
-┣ 📜 app.py
-┣ 📜 gpio_control.py
-┣ 📜 gui_hdmi.py
-┣ 🖼️ house_map.png
-┗ 📜 README.md
+     +---------------------------+
+     |      Lichee RV Dock       |
+     |  (Linux Embebido RISC-V)  |
+     +-----------+---------------+
+                 |
+    I2C          | PWM
+ +---------+     |     +----------------+
+ | BH1750   |----|-----| LED + MOSFET   |
+ | Sensor   |           (Luz controlada)|
+ +---------+            +----------------+
 
 
 
+---
+
+## 🧠 Flujo de operación
+
+1. El sistema arranca Linux y `systemd` ejecuta el **servicio de iluminación**.
+2. El **daemon** configura los pines I²C y PWM.
+3. Se realiza una **lectura periódica** del sensor de luz (cada 500 ms).
+4. Si está en modo automático → ajusta el PWM proporcionalmente.
+5. Si está en modo manual → aplica el brillo definido por el usuario vía web.
+6. El usuario accede desde el navegador (`http://<IP>:8080`) al panel Flask.
+7. Todos los eventos quedan registrados en `journalctl -u lightcontrol.service`.
+
+---
+
+## 🧰 Tecnologías y herramientas
+
+| Categoría | Herramienta / Librería |
+|------------|------------------------|
+| SO Embebido | Buildroot / Debian Lite |
+| Lenguaje | Python 3.10+ |
+| Framework Web | Flask |
+| Control de hardware | `smbus2`, `RPi.GPIO` (adaptado a Lichee) |
+| Automatización | `systemd`, `bash` scripts |
+| Repositorio | Git + GitHub |
+| Diagramas | Draw.io / Mermaid |
+
+---
+
+## 🧪 Plan de verificación
+
+| Test ID | Req. ID | Descripción | Procedimiento | Resultado esperado | Prioridad |
+|----------|----------|--------------|----------------|--------------------|------------|
+| TC-001 | RF1 | Verificar lectura de sensor de luz | Conectar sensor y leer valor en log | Valor en lux aumenta/disminuye según luz | Alta |
+| TC-002 | RF2 | Verificar control PWM | Cambiar brillo por software | LED varía intensidad visiblemente | Alta |
+| TC-003 | RF3 | Verificar interfaz web | Acceder a `http://IP:8080` | Página carga y responde en <300 ms | Media |
+| TC-004 | RF4 | Verificar autoinicio | Reiniciar sistema | Servicio corre automáticamente | Alta |
+| TC-005 | RF5 | Verificar registro en logs | Consultar `journalctl -u lightcontrol` | Eventos y errores registrados | Media |
+
+---
+
+## 📁 Estructura del repositorio
+
+┣ 📂 docs
+┃ ┣ 📄 diagramas/
+┃ ┣ 📄 requisitos.md
+┃ ┗ 📄 pruebas.md
+┣ 📂 src
+┃ ┣ 📄 main.py
+┃ ┣ 📄 control_daemon.py
+┃ ┣ 📄 sensor.py
+┃ ┗ 📄 pwm_driver.py
+┣ 📂 systemd
+┃ ┗ 📄 lightcontrol.service
+┣ 📂 web
+┃ ┣ 📄 app.py
+┃ ┗ 📄 templates/
+┣ 📄 README.md
+┣ 📄 LICENSE
+┗ 📄 requirements.txt
+
+
+---
+
+## 🚀 Próximos pasos
+
+1. [ ] Crear entorno Buildroot o Debian minimal con acceso GPIO/I²C.  
+2. [ ] Probar sensor BH1750 desde terminal con `i2c-tools`.  
+3. [ ] Desarrollar daemon de control (`control_daemon.py`).  
+4. [ ] Implementar interfaz Flask con API REST.  
+5. [ ] Crear archivo `systemd` para arranque automático.  
+6. [ ] Ejecutar plan de pruebas y documentar resultados.  
+7. [ ] Publicar documentación final en GitHub Pages (opcional).
+
+---
+
+## 📚 Referencias
+
+- [RAPTOR Buildroot for Lichee RV](https://wiki.sipeed.com/hardware/en/lichee/rv/rv.html)  
+- [Flask Microframework Documentation](https://flask.palletsprojects.com/en/latest/)  
+- [Linux PWM Interface Documentation](https://www.kernel.org/doc/Documentation/pwm.txt)  
+- [BH1750 Sensor Datasheet](https://www.mouser.com/datasheet/2/348/bh1750fvi-e-186247.pdf)
+
+---
+
+🧩 *Proyecto desarrollado como parte del curso Embedded Linux System Programming (2025-2S).*
 
 
 
