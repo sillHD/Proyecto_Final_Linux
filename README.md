@@ -1,4 +1,4 @@
-# 💡 Proyecto: Sistema Linux Embebido de Control de Iluminación Inteligente
+#  Proyecto: Sistema Linux Embebido de Control de Iluminación Inteligente
 
 **Autores:** 
 **Curso:** Embedded Linux System Programming — 2025-2S  
@@ -8,7 +8,7 @@
 
 ---
 
-## 🧭 Descripción general
+##  Descripción general
 
 Este proyecto consiste en el diseño e implementación de un **sistema embebido basado en Linux** ejecutándose sobre una **placa Lichee RV Dock**, que controla la **intensidad de una lámpara LED** en función de la **iluminación ambiental**.
 
@@ -17,12 +17,12 @@ Además, incluye una **interfaz web local (Flask)** que permite al usuario visua
 
 ---
 
-## 🧩 Cómo este proyecto constituye un Sistema Operativo Embebido
+##  Cómo este proyecto constituye un Sistema Operativo Embebido
 
 Este proyecto no se limita a ejecutar un programa sobre Linux: se **construye un sistema operativo embebido funcional**, adaptado específicamente al control de iluminación.  
 Esto implica intervenir y configurar **los tres niveles fundamentales** de un sistema Linux embebido.
 
-### 🧱 1. Capa de Sistema Operativo Base
+###  1. Capa de Sistema Operativo Base
 Se parte de una distribución mínima de Linux (por ejemplo, **Buildroot** o **Debian Lite**) configurada para la arquitectura **RISC-V** de la Lichee RV Dock.  
 En esta capa se:
 - Compilan y personalizan los **módulos del kernel** necesarios (GPIO, PWM, I²C).  
@@ -36,7 +36,7 @@ En esta capa se:
 ### ⚙️ 2. Capa de Servicios del Sistema (System Services)
 Encima del kernel se desarrollan **servicios propios del sistema embebido**:
 - Un **daemon de control de iluminación** en Python/C, que lee sensores y regula la salida PWM.  
-- Un servicio **systemd** (`lightcontrol.service`) que permite el arranque automático, supervisión y reinicio del daemon.  
+- Un servicio **systemd** (`lightcontrol.service`) que permite el arranque automático, la supervisión y el reinicio del daemon.  
 
 ➡️ **Resultado:** el sistema embebido posee sus **propios servicios gestionados** por el init system, igual que un sistema operativo completo.
 
@@ -52,7 +52,7 @@ Finalmente, se implementa una **interfaz web embebida (Flask)** que permite inte
 
 ---
 
-### 🧠 En resumen
+###  En resumen
 El sistema embebido integra los tres niveles clásicos de un sistema operativo Linux:
 
 | Nivel | Elemento desarrollado |
@@ -65,7 +65,7 @@ El sistema embebido integra los tres niveles clásicos de un sistema operativo L
 
 ---
 
-## 🎯 Objetivos
+##  Objetivos
 
 ### Objetivo general
 Implementar un sistema Linux embebido capaz de controlar dinámicamente la intensidad lumínica en función de la luz ambiental, con supervisión y control remoto local a través de una interfaz web.
@@ -79,9 +79,9 @@ Implementar un sistema Linux embebido capaz de controlar dinámicamente la inten
 
 ---
 
-## ⚙️ Requerimientos del sistema
+##  Requerimientos del sistema
 
-### 🔹 Funcionales
+###  Funcionales
 | ID | Descripción | Tipo |
 |----|--------------|------|
 | RF1 | Leer el nivel de luz ambiental mediante un sensor (LDR o BH1750). | Sensado |
@@ -90,7 +90,7 @@ Implementar un sistema Linux embebido capaz de controlar dinámicamente la inten
 | RF4 | Ejecutar automáticamente el servicio al arrancar Linux. | Sistema |
 | RF5 | Registrar eventos y errores en `journalctl`. | Logging |
 
-### 🔹 No funcionales
+###  No funcionales
 | ID | Descripción | Tipo |
 |----|--------------|------|
 | RNF1 | Tiempo máximo de respuesta a solicitudes REST: **<300 ms** | Desempeño |
@@ -100,9 +100,9 @@ Implementar un sistema Linux embebido capaz de controlar dinámicamente la inten
 
 ---
 
-## 🧩 Arquitectura del sistema
+##  Arquitectura del sistema
 
-### 🧱 Hardware
+###  Hardware
 
 | Componente | Función | Interfaz |
 |-------------|----------|-----------|
@@ -112,7 +112,7 @@ Implementar un sistema Linux embebido capaz de controlar dinámicamente la inten
 | **Fuente DC 5V** | Alimentación del sistema | — |
 
 ### ⚙️ Software
-
+```
 +----------------------------------------------------------+
 | Interfaz Web Flask |
 | - API REST / Control manual |
@@ -131,28 +131,30 @@ Implementar un sistema Linux embebido capaz de controlar dinámicamente la inten
 +----------------------------------------------------------+
 | Hardware Lichee RV Dock |
 +----------------------------------------------------------+
-
+```
 
 ---
 
-## 🔌 Diagrama de bloques (Hardware)
+##  Diagrama de bloques (Hardware)
 
+```
      +---------------------------+
      |      Lichee RV Dock       |
      |  (Linux Embebido RISC-V)  |
      +-----------+---------------+
                  |
     I2C          | PWM
- +---------+     |     +----------------+
+ +----------+    |    +-----------------+
  | BH1750   |----|-----| LED + MOSFET   |
- | Sensor   |           (Luz controlada)|
- +---------+            +----------------+
+ | Sensor   |          |(Luz controlada)|
+ +----------+          +----------------+
+
+```
 
 
 
----
 
-## 🧠 Flujo de operación
+##  Flujo de operación
 
 1. El sistema arranca Linux y `systemd` ejecuta el **servicio de iluminación**.
 2. El **daemon** configura los pines I²C y PWM.
@@ -164,7 +166,7 @@ Implementar un sistema Linux embebido capaz de controlar dinámicamente la inten
 
 ---
 
-## 🧰 Tecnologías y herramientas
+##  Tecnologías y herramientas
 
 | Categoría | Herramienta / Librería |
 |------------|------------------------|
@@ -178,7 +180,7 @@ Implementar un sistema Linux embebido capaz de controlar dinámicamente la inten
 
 ---
 
-## 🧪 Plan de verificación
+##  Plan de verificación
 
 | Test ID | Req. ID | Descripción | Procedimiento | Resultado esperado | Prioridad |
 |----------|----------|--------------|----------------|--------------------|------------|
@@ -190,8 +192,9 @@ Implementar un sistema Linux embebido capaz de controlar dinámicamente la inten
 
 ---
 
-## 📁 Estructura del repositorio
+##  Estructura del repositorio
 
+```
 ┣ 📂 docs
 ┃ ┣ 📄 diagramas/
 ┃ ┣ 📄 requisitos.md
@@ -209,32 +212,37 @@ Implementar un sistema Linux embebido capaz de controlar dinámicamente la inten
 ┣ 📄 README.md
 ┣ 📄 LICENSE
 ┗ 📄 requirements.txt
+```
+
+## Plan de verificación y validación 
+
+| Fase                               | Objetivo                                           | Prueba               | Resultado esperado  |
+| :--------------------------------- | :------------------------------------------------- | :------------------- | :------------------ |
+| **1. Sistema operativo**           | Confirmar el arranque del entorno Debian RISC-V.   | Boot + SSH           | Sistema estable     |
+| **2. GPIO**                        | Activar y desactivar un LED desde Python.          | `gpio_control.py`    | Encendido correcto  |
+| **3. Servidor Flask**              | Levantar el servidor web y comprobar acceso local. | `http://<IP>:5000`   | Página accesible    |
+| **4. Sensor BH1750**               | Leer valores de luminosidad por I2C.               | Script de prueba     | Lecturas correctas  |
+| **5. PWM / MOSFET**                | Controlar intensidad de luz.                       | Script PWM           | Intensidad variable |
+| **6. Interfaz HDMI (PyQt)**        | Mostrar mapa 2D con estado de luces.               | HDMI output          | Mapa funcional      |
+| **7. Sincronización Flask ↔ PyQt** | Reflejar cambios entre interfaces.                 | Evento encendido     | Sincronía correcta  |
+| **8. Red local**                   | Controlar desde celular o PC.                      | WiFi local           | Latencia mínima     |
+| **9. Validación integral**         | Verificar funcionamiento total.                    | Interacción completa | Operación estable   |
+
+## Cronograma de avance 
+
+| Etapa | Descripción                              |     Estado     |
+| :---- | :--------------------------------------- | :------------: |
+| 1     | Instalación del sistema operativo        |        ✅       |
+| 2     | Configuración del entorno Python y Flask |        ✅       |
+| 3     | Control GPIO funcional                   | 🔄 En progreso |
+| 4     | Desarrollo de interfaz HDMI (PyQt)       |   ☐ Pendiente  |
+| 5     | Sincronización Flask–GUI                 |   ☐ Pendiente  |
+| 6     | Integración del sensor BH1750            |   ☐ Pendiente  |
+| 7     | Pruebas de red local                     |   ☐ Pendiente  |
+| 8     | Documentación y presentación final       |   ☐ Pendiente  |
 
 
----
 
-## 🚀 Próximos pasos
-
-1. [ ] Crear entorno Buildroot o Debian minimal con acceso GPIO/I²C.  
-2. [ ] Probar sensor BH1750 desde terminal con `i2c-tools`.  
-3. [ ] Desarrollar daemon de control (`control_daemon.py`).  
-4. [ ] Implementar interfaz Flask con API REST.  
-5. [ ] Crear archivo `systemd` para arranque automático.  
-6. [ ] Ejecutar plan de pruebas y documentar resultados.  
-7. [ ] Publicar documentación final en GitHub Pages (opcional).
-
----
-
-## 📚 Referencias
-
-- [RAPTOR Buildroot for Lichee RV](https://wiki.sipeed.com/hardware/en/lichee/rv/rv.html)  
-- [Flask Microframework Documentation](https://flask.palletsprojects.com/en/latest/)  
-- [Linux PWM Interface Documentation](https://www.kernel.org/doc/Documentation/pwm.txt)  
-- [BH1750 Sensor Datasheet](https://www.mouser.com/datasheet/2/348/bh1750fvi-e-186247.pdf)
-
----
-
-🧩 *Proyecto desarrollado como parte del curso Embedded Linux System Programming (2025-2S).*
 
 
 
