@@ -1,6 +1,7 @@
 #  Proyecto: Sistema Linux Embebido de Control de Iluminación Inteligente
 
-**Autores:** Ismael Cortes Ramirez  Juan Esteban agreda Gutiérrez
+**Autores:** Ismael Cortes Ramirez  
+Juan Esteban agreda Gutiérrez
 **Curso:** Embedded Linux System Programming — 2025-2S  
 **Docente:** Juan Bernardo Gómez-Mendoza  
 **Plataforma:** Lichee RV Dock (RISC-V)  
